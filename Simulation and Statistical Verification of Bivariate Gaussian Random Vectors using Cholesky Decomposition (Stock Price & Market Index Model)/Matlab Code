@@ -1,0 +1,63 @@
+clear; clc; close all;
+
+mu = [1; 2];
+C = [1, 0.8; 0.8, 2]; 
+N = 5000; 
+L = chol(C, 'lower');
+Z = randn(2, N); 
+X = L * Z + mu; 
+X_samples = X'; 
+
+x1 = linspace(mu(1)-4, mu(1)+4, 100);
+x2 = linspace(mu(2)-4, mu(2)+4, 100);
+[X1, X2] = meshgrid(x1, x2);
+
+Z_pdf = zeros(size(X1));
+
+detC = det(C);
+invC = inv(C);
+
+for i = 1:size(X1, 1)
+for j = 1:size(X1, 2)
+x_vec = [X1(i,j); X2(i,j)] - mu;
+exponent = -0.5 * (x_vec' * invC * x_vec);
+normalization = 1 / (2 * pi * sqrt(detC));
+Z_pdf(i,j) = normalization * exp(exponent);
+end
+end
+
+figure('Name', '3D PDF Surface', 'Color', 'w');
+surf(X1, X2, Z_pdf);
+title('3D Joint PDF of Stock Price and Market Index');
+xlabel('Market Index (X_1)');
+ylabel('Stock Price (X_2)');
+zlabel('Joint PDF f(X_1, X_2)');
+shading interp;
+colormap(jet);
+colorbar;
+view(-30, 30);
+
+figure('Name', 'Contours', 'Color', 'w');
+contour(X1, X2, Z_pdf, 20, 'LineWidth', 1.2);
+hold on;
+scatter(X_samples(1:800, 1), X_samples(1:800, 2), ...
+6, 'k', 'filled', 'MarkerFaceAlpha', 0.2);
+title('Contour of Stock Price vs Market Index');
+xlabel('Market Index');
+ylabel('Stock Price');
+grid on;
+axis equal;
+
+fprintf('--- Statistical Results ---\n');
+
+emp_mean = mean(X_samples);
+fprintf('Empirical Mean: [%.4f, %.4f]\n', emp_mean(1), emp_mean(2));
+
+emp_cov = cov(X_samples);
+disp('Empirical Covariance Matrix:');
+disp(emp_cov);
+
+fprintf('\n--- Theoretical Values ---\n');
+fprintf('Theoretical Mean: [%.4f, %.4f]\n', mu(1), mu(2));
+disp('Theoretical Covariance Matrix:');
+disp(C);
