@@ -1,0 +1,31 @@
+clc;
+clear;
+close all;
+
+% Parameters
+fc = 1000;      
+v = 50;         
+c = 3e8; 
+fs = 100*fc;  
+t = 0:1/fs:0.01; 
+
+% Doppler shift
+fd = (v/c)*fc;
+
+% Signals
+carrier = cos(2*pi*fc*t);
+doppler_signal = cos(2*pi*(fc+fd)*t);
+
+% Plot
+figure;
+subplot(2,1,1);
+plot(t, carrier);
+title('Original Carrier Signal');
+xlabel('Time');
+ylabel('Amplitude');
+
+subplot(2,1,2);
+plot(t, doppler_signal);
+title('Doppler Shifted Signal');
+xlabel('Time');
+ylabel('Amplitude');
